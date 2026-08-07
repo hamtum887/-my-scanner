@@ -58,14 +58,7 @@ print("Total Coins :", len(symbols))
 print(symbols)
 
 
-symbols = [
-    "BTCUSDT",
-    "ETHUSDT",
-    "SOLUSDT",
-    "BNBUSDT",
-    "XRPUSDT",
-    
-]
+
 
 for symbol in symbols:
     # print(f"\n====================")
