@@ -59,11 +59,11 @@ print(symbols)
 
 
 
-
-for symbol in symbols:
-    print(f"\n====================")
-    print(f"Scanning : {symbol}")
-    print("====================")
+while True:
+    for symbol in symbols:
+        print(f"\n====================")
+        print(f"Scanning : {symbol}")
+        print("====================")
 
     url = f"https://fapi.bitunix.com/api/v1/futures/market/kline?symbol={symbol}&interval=15m&limit=100"
 
@@ -363,7 +363,8 @@ if last["close"] < last["EMA21"]:
         print(f"Coin : {symbol}")
         print(f"Price : {last['close']}")
         send_telegram(f"🔴 SELL SIGNAL\nCoin: {symbol}\nPrice: {last['close']}")
-        time.sleep(0.2)
+    
+
         
  #print("\nDebug Status")
 
@@ -383,4 +384,4 @@ if last["close"] < last["EMA21"]:
  #print("Previous Close 1 :", prev1["close"])
  #print("Previous Close 2 :", prev2["close"])
  #print("Previous Close 3 :", prev3["close"])
- #print("Previous Close 4 :", prev4["close"])
+ #print("Previous Close 4 :", prev4["close"])        
