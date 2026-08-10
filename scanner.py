@@ -1,7 +1,7 @@
 import requests
 import time
 import pandas as pd
-BOT_TOKEN = "8690661148:AAFhGhkuTYJoz59BLuAoDNId7nzte2Xa00w"
+BOT_TOKEN = "8690661148:AAGB332ZohRI55AxzKlBeeM8OhN4mjIr-6Y"
 CHAT_ID = "6180132070"
 
 def send_telegram(message):
@@ -61,9 +61,9 @@ print(symbols)
 
 
 for symbol in symbols:
-    # print(f"\n====================")
-    # print(f"Scanning : {symbol}")
-    # print("====================")
+    print(f"\n====================")
+    print(f"Scanning : {symbol}")
+    print("====================")
 
     url = f"https://fapi.bitunix.com/api/v1/futures/market/kline?symbol={symbol}&interval=15m&limit=100"
 
@@ -77,6 +77,11 @@ for symbol in symbols:
 
 
     candles = data["data"]
+    
+    
+    if len(candles) == 0:
+        print(f"{symbol}: No candle data")
+        continue
 
     df = pd.DataFrame(candles)
     df["close"] = df["close"].astype(float)
@@ -89,17 +94,20 @@ for symbol in symbols:
 
    # print(df[["close", "EMA21", "SMA44"]].tail(10))
 
-    if df["EMA21"].iloc[-1] > df["EMA21"].iloc[-2]:
-        print("\nEMA 21 : Rising")
-    else:
-        print("\nEMA 21 : Falling")
+    #if df["EMA21"].iloc[-1] > df["EMA21"].iloc[-2]:
+        #print("\nEMA 21 : Rising")
+    #else:
+        #print("\nEMA 21 : Falling")
 
-    if df["SMA44"].iloc[-1] > df["SMA44"].iloc[-2]:
-        print("SMA 44 : Rising")
-    else:
-        print("SMA 44 : Falling")
-    df["Bullish"] = df["close"] > df["EMA21"]
-    df["Bearish"] = df["close"] < df["EMA21"]
+    #if df["SMA44"].iloc[-1] > df["SMA44"].iloc[-2]:
+        #print("SMA 44 : Rising")
+    #else:
+        #print("SMA 44 : Falling")
+    #df["Bullish"] = df["close"] > df["EMA21"]
+    #df["Bearish"] = df["close"] < df["EMA21"]
+    #if len(df) < 100:
+        #print(f"{symbol}: Not enough data ({len(df)})")
+        #continue
 
     last = df.iloc[-1]
     prev1 = df.iloc[-2]
@@ -107,6 +115,12 @@ for symbol in symbols:
     prev3 = df.iloc[-4]
     prev4 = df.iloc[-5]
     prev5 = df.iloc[-6]
+
+    #print("\n----------------")
+    #print("Current Close :", last["close"])
+    #print("Current High :", last["high"])
+    #print("Current Low :", last["low"])
+    #print("Current Open :", last["open"])
     lookback = 30
     recent = df.tail(lookback)
     trend_start = None
@@ -170,42 +184,39 @@ for symbol in symbols:
             last["close"] > last["SMA44"]
         ):
             pullback_confirmed = True
+    #print("EMA21 :", last["EMA21"])
+    #print("SMA44 :", last["SMA44"])
 
-    print("\n----------------")
-    print("Current Close :", last["close"])
-    print("EMA21 :", last["EMA21"])
-    print("SMA44 :", last["SMA44"])
-
-    if last["Bullish"]:
+    if last["close"] > last["EMA21"]:
         print("Price is ABOVE EMA21")
 
-    if last["Bearish"]:
-        print("Price is BELOW EMA21")
+if last["close"] < last["EMA21"]:
+    print("Price is BELOW EMA21")
     # EMA21 Touch
-    ema_touch = last["low"] <= last["EMA21"] <= last["high"]
+    #ema_touch = last["low"] <= last["EMA21"] <= last["high"]
 
     # SMA44 Touch
-    sma_touch = last["low"] <= last["SMA44"] <= last["high"]
-    pullback_ma = "None"
+    #sma_touch = last["low"] <= last["SMA44"] <= last["high"]
+    #pullback_ma = "None"
 
-    if ema_touch:
-        pullback_ma = "EMA21"
+    #if ema_touch:
+    pullback_ma = "EMA21"
 
-    elif sma_touch:
-        pullback_ma = "SMA44"
-    print("\nTouch Status")
-    print("Pullback MA :", pullback_ma)
-    if ema_touch:
-        print("EMA21 Touched")
-    else:
-        print("EMA21 Not Touched")
+    #elif sma_touch:
+    pullback_ma = "SMA44"
+    #print("\nTouch Status")
+    #print("Pullback MA :", pullback_ma)
+    #if ema_touch:
+        #print("EMA21 Touched")
+    #else:
+        #print("EMA21 Not Touched")
 
-    if sma_touch:
-        print("SMA44 Touched")
-    else:
-        print("SMA44 Not Touched")
+    #if sma_touch:
+        #print("SMA44 Touched")
+    #else:
+        #print("SMA44 Not Touched")
 
-    print("\nPullback Check")
+    #print("\nPullback Check")
     ema_rising = df["EMA21"].iloc[-1] > df["EMA21"].iloc[-2]
     sma_rising = df["SMA44"].iloc[-1] > df["SMA44"].iloc[-2]
 
@@ -214,14 +225,14 @@ for symbol in symbols:
     ema_slope = abs(df["EMA21"].iloc[-1] - df["EMA21"].iloc[-2])
     sma_slope = abs(df["SMA44"].iloc[-1] - df["SMA44"].iloc[-2])
 
-    print("EMA Slope :", ema_slope)
-    print("SMA Slope :", sma_slope)
+    #print("EMA Slope :", ema_slope)
+    #print("SMA Slope :", sma_slope)
     strong_trend = (
         ema_slope > 20 and
         sma_slope > 10
     )
 
-    print("Strong Trend :", strong_trend)
+    #print("Strong Trend :", strong_trend)
     sideways = (
         ema_slope < 5 and
         sma_slope < 5 and
@@ -229,7 +240,7 @@ for symbol in symbols:
         abs(last["close"] - last["SMA44"]) < 100
     )
 
-    print("Sideways :", sideways)
+    #print("Sideways :", sideways)
     trend_buy = (
         trend_valid and
         not trend_broken and
@@ -339,17 +350,21 @@ for symbol in symbols:
         strong_trend and
         strong_bounce and
         not sideways
-)
+    )
 
-if buy_signal:
-    print(f"🟢 BUY SIGNAL : {symbol}")
-    send_telegram(f"🟢 BUY SIGNAL : {symbol}")
+    if buy_signal:
+        print(f"\n🟢 BUY SIGNAL FOUND")
+        print(f"Coin : {symbol}")
+        print(f"Price : {last['close']}")
+        send_telegram(f"🟢 BUY SIGNAL\nCoin: {symbol}\nPrice: {last['close']}")
 
-elif sell_signal:
-    print(f"🔴 SELL SIGNAL : {symbol}")
-    send_telegram(f"🔴 SELL SIGNAL : {symbol}")
-    time.sleep(0.2)
-
+    elif sell_signal:
+        print(f"\n🔴 SELL SIGNAL FOUND")
+        print(f"Coin : {symbol}")
+        print(f"Price : {last['close']}")
+        send_telegram(f"🔴 SELL SIGNAL\nCoin: {symbol}\nPrice: {last['close']}")
+        time.sleep(0.2)
+        
  #print("\nDebug Status")
 
  #print("EMA Rising :", ema_rising)
